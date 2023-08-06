@@ -7,10 +7,14 @@ import * as ImagePicker from "expo-image-picker";
 import { supabase } from "@/config/supabase";
 import * as FileSystem from "expo-file-system";
 import { decode } from "base64-arraybuffer";
+import { ScrollView } from "react-native-gesture-handler";
+import ImageItem from "@/components/ImageItem";
+import Spinner from "react-native-loading-spinner-overlay";
 
 const List = () => {
   const { user } = useAuth();
   const [files, setFiles] = useState<FileObject[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -35,6 +39,7 @@ const List = () => {
     const result = await ImagePicker.launchImageLibraryAsync(options);
 
     if (!result.canceled) {
+      setLoading(true);
       const img = result.assets[0];
       const base64 = await FileSystem.readAsStringAsync(img.uri, {
         encoding: "base64",
@@ -47,13 +52,32 @@ const List = () => {
         .from("files")
         .upload(filePath, decode(base64), { contentType });
       await loadImages();
+      setLoading(false);
 
       Alert.alert("File Upload Successful");
     }
   };
 
+  const onRemoveImage = async (item: FileObject, listIndex: number) => {
+    supabase.storage.from("files").remove([`${user!.id}/${item.name}`]);
+    const newFiles = [...files];
+    newFiles.splice(listIndex, 1);
+    setFiles(newFiles);
+  };
+
   return (
     <View style={styles.container}>
+      <Spinner visible={loading} />
+      <ScrollView>
+        {files.map((item, index) => (
+          <ImageItem
+            key={item.id}
+            item={item}
+            userId={user!.id}
+            onRemoveImage={() => onRemoveImage(item, index)}
+          />
+        ))}
+      </ScrollView>
       {/* FAB to add images */}
       <TouchableOpacity onPress={onSelectImage} style={styles.fab}>
         <Ionicons name="camera-outline" size={30} color={"#fff"} />
