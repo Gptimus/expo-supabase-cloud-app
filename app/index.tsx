@@ -26,7 +26,6 @@ const Login = () => {
     });
 
     if (error) Alert.alert(error.message);
-    else Alert.alert("Sign in successfully");
     setLoading(false);
   };
 
