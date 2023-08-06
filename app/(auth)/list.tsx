@@ -67,7 +67,11 @@ const List = () => {
 
   return (
     <View style={styles.container}>
-      <Spinner visible={loading} />
+      <Spinner
+        textStyle={{ color: "white" }}
+        textContent="Loading"
+        visible={loading}
+      />
       <ScrollView>
         {files.map((item, index) => (
           <ImageItem

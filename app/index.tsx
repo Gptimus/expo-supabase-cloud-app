@@ -44,7 +44,11 @@ const Login = () => {
 
   return (
     <View style={styles.container}>
-      <Spinner visible={loading} />
+      <Spinner
+        textStyle={{ color: "white" }}
+        textContent="Loading"
+        visible={loading}
+      />
 
       <Text style={styles.header}>My Cloud</Text>
 
